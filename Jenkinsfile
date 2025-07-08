@@ -11,7 +11,7 @@ pipeline {
 
     tools {
         maven 'maven3'      // Configure this name in "Global Tool Configuration"
-        jdk 'jdk11'         // Configure this name as well
+        jdk 'jdk9'         // Configure this name as well
     }
 
     stages {
