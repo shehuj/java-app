@@ -5,10 +5,6 @@ pipeline {
         maven  'maven3'
     }
     
-    environment{
-        SCANNER_HOME= tool 'sonar-scanner'
-    }
-    
     stages {
         stage('Git Checkout') {
             steps {
@@ -19,16 +15,6 @@ pipeline {
         stage('COMPILE') {
             steps {
                 sh "mvn clean compile -DskipTests=true"
-            }
-        }
-        
-        stage('Sonarqube') {
-            steps {
-                withSonarQubeEnv('sonar-server'){
-                   sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Shopping-Cart \
-                   -Dsonar.java.binaries=. \
-                   -Dsonar.projectKey=Shopping-Cart '''
-               }
             }
         }
         
