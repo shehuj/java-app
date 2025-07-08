@@ -1,42 +1,57 @@
+// Jenkinsfile (Declarative Pipeline)
+
 pipeline {
     agent any
-    tools{
-        jdk  'jdk11'
-        maven  'maven3'
+
+    environment {
+        DOCKER_HUB_USERNAME = 'shehuj'
+        IMAGE_NAME = "shehuj/shopping_cart-java"
+        IMAGE_TAG = "latest"
     }
-    
+
+    tools {
+        maven 'maven3'      // Configure this name in "Global Tool Configuration"
+        jdk 'jdk11'         // Configure this name as well
+    }
+
     stages {
-        stage('Git Checkout') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', changelog: false, credentialsId: '15fb69c3-3460-4d51-bd07-2b0545fa5151', poll: false, url: 'https://github.com/jaiswaladi246/Shopping-Cart.git'
+                git branch: 'main', credentialsId: 'github-credentials', url: 'https://github.com/shehuj/shopping_cart-java.git'
             }
         }
-        
-        stage('COMPILE') {
+
+        stage('Build & Test') {
             steps {
-                sh "mvn clean compile -DskipTests=true"
+                sh 'mvn clean package'
             }
         }
-        
-        stage('Build') {
+
+        stage('Build Docker Image') {
             steps {
-                sh "mvn clean package -DskipTests=true"
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
-        
-        stage('Docker Build & Push') {
+
+        stage('Push Docker Image to Docker Hub') {
             steps {
-                script{
-                    withDockerRegistry(credentialsId: '2fe19d8a-3d12-4b82-ba20-9d22e6bf1672', toolName: 'docker') {
-                        
-                        sh "docker build -t shopping-cart -f ./docker/Dockerfile"
-                        sh "docker tag  shopping-cart adijaiswal/shopping-cart:latest"
-                        sh "docker push shehuj/shopping-cart:latest"
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
+                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
-        
-        
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline finished successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
 }
