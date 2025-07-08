@@ -21,8 +21,8 @@ pipeline {
             }
         }
 
-    stage('Setup Tools') {
-        steps {
+        stage('Setup Tools') {
+            steps {
                 script {
                   env.JAVA_HOME = tool name: 'jdk11', type: 'jdk'
                   env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
@@ -36,6 +36,7 @@ pipeline {
             steps {
                 sh '''
                   echo "JAVA_HOME = $JAVA_HOME"
+                  ls -ld $JAVA_HOME/bin/java
                   java -version
                   mvn -version
                 '''
