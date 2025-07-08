@@ -21,6 +21,16 @@ pipeline {
             }
         }
 
+        stage('Env Check') {
+            steps {
+                sh '''
+                  echo "JAVA_HOME = $JAVA_HOME"
+                  java -version
+                  mvn -version
+                '''
+              }
+            }
+        
         stage('Build & Test') {
             steps {
                 sh 'mvn clean package'
