@@ -21,6 +21,17 @@ pipeline {
             }
         }
 
+    stage('Setup Tools') {
+        steps {
+                script {
+                  env.JAVA_HOME = tool name: 'jdk11', type: 'jdk'
+                  env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                  env.MAVEN_HOME = tool name: 'maven3', type: 'maven'
+                  env.PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
+                }
+              }
+            }
+        
         stage('Env Check') {
             steps {
                 sh '''
